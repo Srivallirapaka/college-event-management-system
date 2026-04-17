@@ -1,7 +1,7 @@
 import { useNavigate, useLocation } from "react-router-dom";
 import { Home, Plus, BarChart3, LogOut } from "lucide-react";
 import { User } from "lucide-react";
-import { auth } from "../Firebase.js";
+import { auth } from "../firebase.js";
 import { useState } from "react";
 
 function BottomNav() {
@@ -101,6 +101,17 @@ function BottomNav() {
               <span className="text-xs font-semibold">Dashboard</span>
             </button>
             <button
+              onClick={() => navigate("/admin-profile")}
+              className={`flex flex-col items-center gap-1 py-2 px-4 rounded-md transition-all ${
+                isActive("/admin-profile")
+                  ? "text-neon-cyan"
+                  : "text-gray-500 hover:text-neon-cyan"
+              }`}
+            >
+              <User className="w-5 h-5" />
+              <span className="text-xs font-semibold">Profile</span>
+            </button>
+            <button
               onClick={() => handleLogout()}
               className="flex flex-col items-center gap-1 py-2 px-4 rounded-md text-gray-500 hover:text-neon-pink transition-all"
             >
@@ -109,11 +120,13 @@ function BottomNav() {
             </button>
           </>
         )}
-        {/* Profile (common) */}
-        <button onClick={() => navigate('/profile')} className="flex flex-col items-center gap-1 py-2 px-4 rounded-md text-gray-500 hover:text-neon-cyan">
-          <User className="w-5 h-5" />
-          <span className="text-xs font-semibold">Profile</span>
-        </button>
+        {/* Profile - for users only */}
+        {userRole === "user" && (
+          <button onClick={() => navigate('/profile')} className="flex flex-col items-center gap-1 py-2 px-4 rounded-md text-gray-500 hover:text-neon-cyan">
+            <User className="w-5 h-5" />
+            <span className="text-xs font-semibold">Profile</span>
+          </button>
+        )}
       </div>
     </div>
   );

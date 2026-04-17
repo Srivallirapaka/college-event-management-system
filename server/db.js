@@ -56,10 +56,37 @@ async function createTables(connection) {
         slots INT,
         imageUrl VARCHAR(500),
         category VARCHAR(100),
+        format VARCHAR(50) DEFAULT 'online',
         createdBy VARCHAR(255),
         status VARCHAR(50) DEFAULT 'pending',
         registeredUsers JSON,
         createdAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+      )
+    `);
+
+    // Add format column if it doesn't exist (for existing tables)
+    try {
+      await connection.execute(`
+        ALTER TABLE events ADD COLUMN format VARCHAR(50) DEFAULT 'online'
+      `);
+      console.log("✅ Added format column to events table");
+    } catch (alterErr) {
+      // Column might already exist, that's okay
+      if (!alterErr.message.includes("Duplicate column")) {
+        console.warn("⚠️ Format column already exists or other issue:", alterErr.message);
+      }
+    }
+
+    // Create Attendance table for QR check-in tracking
+    await connection.execute(`
+      CREATE TABLE IF NOT EXISTS attendance (
+        id INT AUTO_INCREMENT PRIMARY KEY,
+        eventId INT NOT NULL,
+        userId VARCHAR(255) NOT NULL,
+        checkedInAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+        qrCode VARCHAR(500),
+        UNIQUE KEY unique_attendance (eventId, userId),
+        FOREIGN KEY (eventId) REFERENCES events(id) ON DELETE CASCADE
       )
     `);
   } catch (err) {

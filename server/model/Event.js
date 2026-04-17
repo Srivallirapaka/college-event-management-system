@@ -12,13 +12,14 @@ class Event {
       slots,
       imageUrl = null,
       category,
+      format = "online",
       createdBy,
       status = "pending"
     } = eventData;
 
     const query = `
-      INSERT INTO events (title, description, date, time, location, eligibility, slots, imageUrl, category, createdBy, status, registeredUsers)
-      VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+      INSERT INTO events (title, description, date, time, location, eligibility, slots, imageUrl, category, format, createdBy, status, registeredUsers)
+      VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
     `;
 
     const pool = getPool();
@@ -34,6 +35,7 @@ class Event {
         slots,
         imageUrl || null,
         category,
+        format || "online",
         createdBy,
         status,
         JSON.stringify([])
@@ -81,12 +83,40 @@ class Event {
   }
 
   static async findByRegisteredUser(userId) {
-    const query = "SELECT * FROM events WHERE JSON_CONTAINS(registeredUsers, ?)";
+    // Get all events and filter in JavaScript
+    const query = "SELECT * FROM events";
     const pool = getPool();
     const connection = await pool.getConnection();
     try {
-      const [results] = await connection.execute(query, [JSON.stringify(userId)]);
-      return results;
+      const [results] = await connection.execute(query);
+      
+      // Filter events where user is registered
+      const filtered = results.filter(event => {
+        let registeredUsers = event.registeredUsers;
+        
+        // Handle different data formats from MySQL
+        if (!registeredUsers) {
+          return false;
+        }
+        
+        // If it's a string, parse it
+        if (typeof registeredUsers === 'string') {
+          try {
+            registeredUsers = JSON.parse(registeredUsers);
+          } catch {
+            return false;
+          }
+        }
+        
+        // Now check if it's an array and contains the user
+        if (Array.isArray(registeredUsers)) {
+          return registeredUsers.includes(userId) || registeredUsers.some(u => String(u) === String(userId));
+        }
+        
+        return false;
+      });
+      
+      return filtered;
     } finally {
       connection.release();
     }
@@ -161,4 +191,79 @@ class Event {
   }
 }
 
+// Attendance class for tracking check-ins
+class Attendance {
+  static async recordAttendance(eventId, userId, qrCode = null) {
+    const query = `
+      INSERT INTO attendance (eventId, userId, qrCode)
+      VALUES (?, ?, ?)
+      ON DUPLICATE KEY UPDATE
+      checkedInAt = CURRENT_TIMESTAMP
+    `;
+    
+    const pool = getPool();
+    const connection = await pool.getConnection();
+    try {
+      const [result] = await connection.execute(query, [eventId, userId, qrCode]);
+      return result;
+    } finally {
+      connection.release();
+    }
+  }
+
+  static async getEventAttendance(eventId) {
+    const query = `
+      SELECT COUNT(*) as attendanceCount, 
+             GROUP_CONCAT(userId) as attendedUsers
+      FROM attendance
+      WHERE eventId = ?
+    `;
+    
+    const pool = getPool();
+    const connection = await pool.getConnection();
+    try {
+      const [results] = await connection.execute(query, [eventId]);
+      return results[0] || { attendanceCount: 0, attendedUsers: null };
+    } finally {
+      connection.release();
+    }
+  }
+
+  static async getUserAttendance(userId) {
+    const query = `
+      SELECT a.*, e.title as eventTitle
+      FROM attendance a
+      JOIN events e ON a.eventId = e.id
+      WHERE a.userId = ?
+      ORDER BY a.checkedInAt DESC
+    `;
+    
+    const pool = getPool();
+    const connection = await pool.getConnection();
+    try {
+      const [results] = await connection.execute(query, [userId]);
+      return results;
+    } finally {
+      connection.release();
+    }
+  }
+
+  static async isUserAttended(eventId, userId) {
+    const query = `
+      SELECT id FROM attendance
+      WHERE eventId = ? AND userId = ?
+    `;
+    
+    const pool = getPool();
+    const connection = await pool.getConnection();
+    try {
+      const [results] = await connection.execute(query, [eventId, userId]);
+      return results.length > 0;
+    } finally {
+      connection.release();
+    }
+  }
+}
+
 module.exports = Event;
+module.exports.Attendance = Attendance;

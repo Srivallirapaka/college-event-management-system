@@ -1,9 +1,9 @@
 import { useQuery } from "@tanstack/react-query";
 import axios from "axios";
 import { useState, useMemo } from "react";
-import { Calendar, Users, ArrowRight, LogOut, Search } from "lucide-react";
+import { Calendar, LogOut, Search, Sparkles } from "lucide-react";
 import { useNavigate } from "react-router-dom";
-import { auth } from "../Firebase.js";
+import { auth } from "../firebase.js";
 
 const fetchEvents = async () => {
   const res = await axios.get("http://localhost:5000/events");
@@ -65,143 +65,261 @@ function Dashboard() {
 
   return (
     <div className="min-h-screen bg-white text-gray-800">
-      {/* Top navigation */}
-      <nav className="bg-white sticky top-0 z-50 border-b border-gray-100">
-        <div className="max-w-7xl mx-auto px-4 py-3 flex items-center gap-4">
+      {/* Top Navigation Bar */}
+      <nav className="bg-white sticky top-0 z-50 border-b border-gray-100 shadow-sm">
+        <div className="max-w-7xl mx-auto px-6 py-4 flex items-center gap-6">
+          {/* Left: Project Name + Dropdowns */}
           <div className="flex items-center gap-4">
-            <div className="text-2xl font-bold">CampusEvents</div>
-            <select className="border border-gray-200 rounded-md px-3 py-2 text-sm">
+            <div className="text-2xl font-bold tracking-tight text-gray-900">CampusEvents</div>
+            <div className="h-6 w-px bg-gray-200"></div>
+            
+            {/* Event Type Dropdown */}
+            <select className="nav-select text-sm font-medium text-gray-700">
               <option>All Types</option>
               <option>Hackathon</option>
               <option>Workshop</option>
               <option>Seminar</option>
+              <option>Conference</option>
+              <option>Concert</option>
             </select>
-            <select className="border border-gray-200 rounded-md px-3 py-2 text-sm">
+            
+            {/* Event Format Dropdown */}
+            <select className="nav-select text-sm font-medium text-gray-700">
               <option>All Formats</option>
               <option>Online</option>
               <option>Offline</option>
               <option>Hybrid</option>
             </select>
           </div>
-          <div className="ml-auto flex items-center gap-3">
-            <div className="relative">
-              <input value={search} onChange={(e)=>setSearch(e.target.value)} placeholder="Search events, keywords..." className="border border-gray-200 rounded-md px-10 py-2 w-72 text-sm" />
-              <Search className="w-4 h-4 absolute left-3 top-2.5 text-gray-400" />
+
+          {/* Right: Search Bar + Buttons */}
+          <div className="ml-auto flex items-center gap-4">
+            {/* Search Bar */}
+            <div className="relative w-80">
+              <input 
+                value={search} 
+                onChange={(e)=>setSearch(e.target.value)} 
+                placeholder="Search events..." 
+                className="search-input w-full px-4 py-2.5 pl-10 text-sm bg-gray-50 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-offset-0 focus:ring-cyan-400 transition-all"
+              />
+              <Search className="w-4 h-4 absolute left-3 top-3 text-gray-400" />
             </div>
-            <button onClick={() => navigate('/create')} className="px-4 py-2 rounded-lg btn-neon text-sm font-semibold">+ New Event</button>
-            <button onClick={handleLogout} className="px-3 py-2 rounded-lg border border-gray-200 text-sm text-gray-600 hover:bg-gray-50 transition-colors flex items-center gap-2">
-              <LogOut className="w-4 h-4" />
-              Logout
+
+            {/* Logout Button */}
+            <button 
+              onClick={handleLogout} 
+              className="nav-btn px-3.5 py-2.5 rounded-lg border border-blue-300 bg-blue-50 text-sm text-blue-700 hover:bg-blue-100 transition-all duration-200 flex items-center gap-2 group"
+            >
+              <LogOut className="w-4 h-4 group-hover:text-blue-800" />
+              <span>Logout</span>
             </button>
           </div>
         </div>
       </nav>
 
-      {/* Hero */}
-      <div className="max-w-7xl mx-auto px-4 py-10">
-        {/* Latest Events (horizontal scroller) */}
-        <div className="mb-6">
-          <div className="flex items-center justify-between mb-4">
-            <h2 className="text-2xl font-bold">Latest Events</h2>
-            <div className="text-sm text-gray-500">Updated recently</div>
+      {/* Main Content */}
+      <div className="max-w-7xl mx-auto px-6 py-12">
+        
+        {/* Latest Events Section */}
+        <section className="mb-16">
+          <div className="flex items-center justify-between mb-6">
+            <div>
+              <h2 className="text-3xl font-bold text-gray-900 tracking-tight">Latest Events</h2>
+              <p className="text-sm text-gray-500 mt-1">Most recently added to our platform</p>
+            </div>
           </div>
+
+          {/* Horizontal Scrolling Cards */}
           <div className="scroll-x pb-4">
-            {(events.slice(0,8)).map(ev => (
-              <div key={ev.id} className="w-56 card p-0 overflow-hidden rounded-lg flex-shrink-0 neon-glow">
-                <div className="h-36 w-full bg-gray-100 overflow-hidden">
-                    {ev.imageUrl ? (
-                      <img src={ev.imageUrl} alt={ev.title} className="w-full h-full object-cover" />
-                    ) : (
-                      <div className="w-full h-full flex items-center justify-center">
-                        <svg width="100%" height="100%" viewBox="0 0 400 240" xmlns="http://www.w3.org/2000/svg">
-                          <rect width="100%" height="100%" fill="#f3f4f6" />
-                          <text x="50%" y="50%" dominantBaseline="middle" textAnchor="middle" fill="#9ca3af" fontSize="14" fontFamily="Inter, sans-serif">No image</text>
-                        </svg>
-                      </div>
-                    )}
+            {(events.slice(0, 8)).map(ev => (
+              <div 
+                key={ev.id} 
+                className="event-card-poster flex-shrink-0 w-56 rounded-lg overflow-hidden bg-white border border-gray-200 group cursor-pointer transition-all duration-300 hover:shadow-xl"
+                onClick={() => navigate(`/event/${ev.id}`)}
+              >
+                {/* Poster Image */}
+                <div className="h-40 w-full bg-gradient-to-br from-gray-100 to-gray-200 overflow-hidden relative">
+                  {ev.imageUrl ? (
+                    <img 
+                      src={ev.imageUrl} 
+                      alt={ev.title} 
+                      className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-300"
+                    />
+                  ) : (
+                    <div className="w-full h-full flex items-center justify-center bg-gray-100">
+                      <Sparkles className="w-8 h-8 text-gray-300" />
+                    </div>
+                  )}
+                  <div className="absolute inset-0 bg-gradient-to-t from-black/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
                 </div>
-                <div className="p-3 text-left">
-                  <div className="font-semibold text-sm line-clamp-2">{ev.title}</div>
-                  <div className="text-xs text-gray-500 mt-1">{ev.date ? new Date(ev.date).toLocaleDateString() : ''}</div>
+                
+                {/* Card Content */}
+                <div className="p-4">
+                  <h3 className="font-semibold text-sm text-gray-900 line-clamp-2 group-hover:text-cyan-600 transition-colors">
+                    {ev.title}
+                  </h3>
+                  <p className="text-xs text-gray-500 mt-2 flex items-center gap-1">
+                    <Calendar className="w-3 h-3" />
+                    {ev.date ? new Date(ev.date).toLocaleDateString() : 'TBA'}
+                  </p>
                 </div>
               </div>
             ))}
           </div>
-        </div>
+        </section>
 
-        {/* Filters */}
-        <div className="mb-6 flex items-center gap-3">
-          <button onClick={()=>setFilter('today')} className={`filter-btn ${filter==='today' ? 'btn-neon text-white' : 'text-gray-600'}`}>Today</button>
-          <button onClick={()=>setFilter('weekend')} className={`filter-btn ${filter==='weekend' ? 'btn-neon text-white' : 'text-gray-600'}`}>This Weekend</button>
-          <button onClick={()=>setFilter('month')} className={`filter-btn ${filter==='month' ? 'btn-neon text-white' : 'text-gray-600'}`}>This Month</button>
-          <button onClick={()=>{setFilter('all'); setSearch('');}} className="ml-auto text-sm text-gray-500">Clear</button>
-        </div>
+        {/* Filter Buttons Section */}
+        <section className="mb-12">
+          <div className="flex items-center gap-3 flex-wrap">
+            <button 
+              onClick={()=>setFilter('today')} 
+              className={`filter-btn transition-all duration-200 ${filter==='today' ? 'btn-neon text-white shadow-lg shadow-blue-600/30' : 'bg-white text-gray-700 border border-gray-200 hover:shadow-md'}`}
+            >
+              Today
+            </button>
+            <button 
+              onClick={()=>setFilter('weekend')} 
+              className={`filter-btn transition-all duration-200 ${filter==='weekend' ? 'btn-neon text-white shadow-lg shadow-blue-600/30' : 'bg-white text-gray-700 border border-gray-200 hover:shadow-md'}`}
+            >
+              This Weekend
+            </button>
+            <button 
+              onClick={()=>setFilter('month')} 
+              className={`filter-btn transition-all duration-200 ${filter==='month' ? 'btn-neon text-white shadow-lg shadow-blue-600/30' : 'bg-white text-gray-700 border border-gray-200 hover:shadow-md'}`}
+            >
+              This Month
+            </button>
+            <button 
+              onClick={()=>{setFilter('all'); setSearch('');}} 
+              className="ml-auto text-sm text-gray-500 hover:text-gray-700 transition-colors px-3 py-2 rounded-lg hover:bg-gray-50"
+            >
+              Clear Filters
+            </button>
+          </div>
+        </section>
 
+        {/* Loading State */}
         {isLoading && (
-          <div className="flex justify-center items-center min-h-48">
-            <div className="animate-spin rounded-full h-10 w-10 border-t-2 border-gray-300"></div>
+          <div className="flex justify-center items-center min-h-96">
+            <div className="flex flex-col items-center gap-3">
+              <div className="animate-spin rounded-full h-12 w-12 border-2 border-gray-200 border-t-cyan-500"></div>
+              <p className="text-gray-500 text-sm">Loading events...</p>
+            </div>
           </div>
         )}
 
+        {/* Error State */}
         {error && (
-          <div className="bg-red-50 border border-red-100 rounded-lg p-4 text-red-600">
-            Error loading events. Please try again.
+          <div className="bg-red-50 border border-red-200 rounded-lg p-6 text-red-700 text-center">
+            <p className="font-semibold">Unable to load events</p>
+            <p className="text-sm mt-1">Please try refreshing or contact support</p>
           </div>
         )}
 
+        {/* Empty State */}
         {!isLoading && events.length === 0 && (
-          <div className="text-center py-20">
-            <p className="text-gray-500 text-lg">No events available yet.</p>
+          <div className="text-center py-24">
+            <Sparkles className="w-12 h-12 text-gray-300 mx-auto mb-4" />
+            <p className="text-gray-500 text-lg font-medium">No events available yet</p>
+            <p className="text-gray-400 text-sm mt-1">Check back soon for exciting events!</p>
           </div>
         )}
 
         {/* Events Grid */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {filteredEvents.map((event) => (
-            <div key={event.id} className="card p-4 hover:shadow-md transition-shadow transform hover:-translate-y-1">
-              <div className="h-40 w-full bg-gray-100 rounded-md overflow-hidden mb-3">
+        {!isLoading && filteredEvents.length > 0 && (
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-12">
+            {filteredEvents.map((event) => (
+              <div 
+                key={event.id} 
+                className="event-card group bg-white rounded-lg overflow-hidden border border-gray-200 hover:border-cyan-300 transition-all duration-300 hover:shadow-xl hover:-translate-y-1"
+              >
+                {/* Event Poster Image */}
+                <div className="h-48 w-full bg-gradient-to-br from-gray-100 to-gray-200 overflow-hidden relative">
                   {event.imageUrl ? (
-                    <img src={event.imageUrl} alt={event.title} className="w-full h-full object-cover" />
+                    <img 
+                      src={event.imageUrl} 
+                      alt={event.title} 
+                      className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-300"
+                    />
                   ) : (
                     <div className="w-full h-full flex items-center justify-center">
-                      <svg width="100%" height="100%" viewBox="0 0 400 260" xmlns="http://www.w3.org/2000/svg">
-                        <rect width="100%" height="100%" fill="#f3f4f6" />
-                        <text x="50%" y="50%" dominantBaseline="middle" textAnchor="middle" fill="#9ca3af" fontSize="14" fontFamily="Inter, sans-serif">No image</text>
-                      </svg>
                     </div>
                   )}
-              </div>
-              <h3 className="text-lg font-semibold mb-1">{event.title}</h3>
-              <p className="text-sm text-gray-500 mb-3 line-clamp-2">{event.description}</p>
-
-              <div className="flex items-center justify-between gap-4">
-                <div className="text-sm text-gray-500 flex items-center gap-3">
-                  {event.date && <><Calendar className="w-4 h-4 text-gray-400" />{new Date(event.date).toLocaleDateString()}</>}
+                  <div className="absolute inset-0 bg-gradient-to-t from-black/40 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
                 </div>
-                <div className="flex-1 flex items-center gap-2 justify-end">
-                  <button onClick={() => navigate(`/event/${event.id}`)} className="px-3 py-2 rounded-md text-sm border border-gray-200 hover:bg-gray-50">Details</button>
-                  <button onClick={() => registerEvent(event.id)} disabled={registering === event.id} className="px-3 py-2 rounded-md bg-gradient-to-r from-neon-cyan to-neon-pink text-white text-sm font-semibold hover:shadow-neon-pink/30 disabled:opacity-50">
-                    {registering === event.id ? 'Registering...' : 'Register'}
-                  </button>
+
+                {/* Card Content */}
+                <div className="p-5">
+                  <h3 className="text-lg font-bold text-gray-900 line-clamp-2 group-hover:text-cyan-600 transition-colors">
+                    {event.title}
+                  </h3>
+                  <p className="text-sm text-gray-600 mt-2 line-clamp-2 min-h-10">
+                    {event.description}
+                  </p>
+
+                  {/* Date and Actions */}
+                  <div className="mt-4 flex items-center justify-between gap-3">
+                    <div className="text-sm text-gray-500 flex items-center gap-1.5">
+                      <Calendar className="w-4 h-4 text-gray-400" />
+                      <span className="font-medium">{event.date ? new Date(event.date).toLocaleDateString() : 'TBA'}</span>
+                    </div>
+                  </div>
+
+                  {/* Buttons */}
+                  <div className="mt-4 flex gap-2">
+                    <button 
+                      onClick={() => navigate(`/event/${event.id}`)} 
+                      className="flex-1 px-3 py-2.5 rounded-lg border border-gray-300 text-sm font-semibold text-gray-700 hover:bg-gray-50 hover:border-gray-400 transition-all duration-200"
+                    >
+                      Details
+                    </button>
+                    <button 
+                      onClick={() => registerEvent(event.id)} 
+                      disabled={registering === event.id}
+                      className="flex-1 px-3 py-2.5 rounded-lg btn-neon text-white text-sm font-semibold transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed hover:shadow-lg hover:shadow-blue-600/30"
+                    >
+                      {registering === event.id ? 'Registering...' : 'Register'}
+                    </button>
+                  </div>
                 </div>
               </div>
-            </div>
-          ))}
-        </div>
+            ))}
+          </div>
+        )}
 
-        <div className="mt-8 flex justify-center">
-          <button onClick={()=>navigate('/events')} className="px-6 py-3 rounded-lg btn-neon font-semibold text-lg">Explore All Events</button>
+        {/* Empty Filtered State */}
+        {!isLoading && events.length > 0 && filteredEvents.length === 0 && (
+          <div className="text-center py-24">
+            <Sparkles className="w-12 h-12 text-gray-300 mx-auto mb-4" />
+            <p className="text-gray-500 text-lg font-medium">No events match your filters</p>
+            <button 
+              onClick={()=>{setFilter('all'); setSearch('');}}
+              className="text-cyan-600 hover:text-cyan-700 text-sm font-semibold mt-3 transition-colors"
+            >
+              Clear filters
+            </button>
+          </div>
+        )}
+
+        {/* Explore All Events Button */}
+        <div className="flex justify-center mb-16">
+          <button 
+            onClick={()=>navigate('/events')} 
+            className="btn-neon px-8 py-3.5 rounded-lg text-lg font-bold transition-all duration-300 hover:shadow-2xl hover:shadow-blue-600/40 transform hover:scale-105"
+          >
+            Explore All Events
+          </button>
         </div>
       </div>
 
       {/* Footer */}
       <footer className="bg-white border-t border-gray-100 mt-auto">
-        <div className="max-w-7xl mx-auto px-4 py-8 flex flex-col md:flex-row items-center justify-between text-sm text-gray-500">
-          <div>© CampusEvents</div>
-          <div className="flex gap-4 mt-3 md:mt-0">
-            <a href="#">About</a>
-            <a href="#">Contact</a>
-            <a href="#">Terms</a>
+        <div className="max-w-7xl mx-auto px-6 py-10 flex flex-col md:flex-row items-center justify-between">
+          <div className="text-sm font-semibold bg-gradient-to-r from-orange-600 to-rose-600 bg-clip-text text-transparent">© 2024 CampusEvents</div>
+          <div className="flex gap-6 mt-4 md:mt-0 text-sm">
+            <a href="#" className="text-gray-600 hover:text-gray-900 font-medium transition-colors">About</a>
+            <a href="#" className="text-gray-600 hover:text-gray-900 font-medium transition-colors">Contact</a>
+            <a href="#" className="text-gray-600 hover:text-gray-900 font-medium transition-colors">Terms</a>
           </div>
         </div>
       </footer>

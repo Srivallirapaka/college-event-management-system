@@ -4,15 +4,18 @@ import Dashboard from "./pages/Dashboard";
 import UserDashboard from "./pages/UserDashboard";
 import OrganizerDashboard from "./pages/OrganizerDashboard";
 import AdminDashboard from "./pages/AdminDashboard";
-import CreateEvent from "./pages/createEvent";
+import CreateEvent from "./pages/CreateEvent";
 import EventDetails from "./pages/EventDetails";
 import ProtectedRoute from "./components/ProtectedRoute";
 import BottomNav from "./components/BottomNav";
+import NotificationBanner from "./components/NotificationBanner";
 import Profile from "./pages/Profile";
+import AdminProfile from "./pages/AdminProfile";
 
 function App() {
   return (
     <BrowserRouter>
+      <NotificationBanner />
       <BottomNav />
       <Routes>
         <Route path="/" element={<Login />} />
@@ -50,7 +53,15 @@ function App() {
           }
         />
         <Route path="/event/:id" element={<EventDetails />} />
-        <Route path="/profile" element={<Profile />} />
+        <Route path="/profile" element={<ProtectedRoute requiredRole="user"><Profile /></ProtectedRoute>} />
+        <Route
+          path="/admin-profile"
+          element={
+            <ProtectedRoute requiredRole="admin">
+              <AdminProfile />
+            </ProtectedRoute>
+          }
+        />
       </Routes>
     </BrowserRouter>
   );
