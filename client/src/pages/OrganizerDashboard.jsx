@@ -271,8 +271,8 @@ function OrganizerDashboard() {
                   title: "Total Registrations",
                   value: events.reduce((acc, e) => acc + (e.registrations?.length || 0), 0),
                   icon: Users,
-                  gradient: "from-blue-500 to-blue-600",
-                  bgColor: "bg-blue-50",
+                  gradient: "from-orange-500 to-orange-600",
+                  bgColor: "bg-orange-50",
                 },
                 {
                   title: "Registration Rate",
