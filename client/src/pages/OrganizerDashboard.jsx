@@ -318,7 +318,7 @@ function OrganizerDashboard() {
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 sm:gap-6">
               <button
                 onClick={() => navigate("/create")}
-                className="bg-gradient-to-r from-blue-500 to-blue-600 text-white rounded-lg sm:rounded-2xl p-4 sm:p-6 lg:p-8 hover:shadow-lg hover:shadow-blue-500/30 hover:scale-105 transition-all duration-300 text-left"
+                className="bg-gradient-to-r from-green-500 to-green-600 text-white rounded-lg sm:rounded-2xl p-4 sm:p-6 lg:p-8 hover:shadow-lg hover:shadow-green-500/30 hover:scale-105 transition-all duration-300 text-left"
               >
                 <div className="flex items-center gap-3 sm:gap-4">
                   <div className="p-2 sm:p-3 lg:p-4 bg-white/20 rounded-lg">
@@ -326,14 +326,14 @@ function OrganizerDashboard() {
                   </div>
                   <div className="min-w-0">
                     <h3 className="font-bold text-base sm:text-lg">Create Event</h3>
-                    <p className="text-xs sm:text-sm text-blue-100">Launch a new event for registrations</p>
+                    <p className="text-xs sm:text-sm text-green-100">Launch a new event for registrations</p>
                   </div>
                 </div>
               </button>
 
               <button
                 onClick={() => setActiveTab("events")}
-                className="bg-gradient-to-r from-blue-600 to-blue-700 text-white rounded-lg sm:rounded-2xl p-4 sm:p-6 lg:p-8 hover:shadow-lg hover:shadow-blue-600/30 hover:scale-105 transition-all duration-300 text-left"
+                className="bg-gradient-to-r from-orange-500 to-orange-600 text-white rounded-lg sm:rounded-2xl p-4 sm:p-6 lg:p-8 hover:shadow-lg hover:shadow-orange-500/30 hover:scale-105 transition-all duration-300 text-left"
               >
                 <div className="flex items-center gap-3 sm:gap-4">
                   <div className="p-2 sm:p-3 lg:p-4 bg-white/20 rounded-lg">
@@ -341,7 +341,7 @@ function OrganizerDashboard() {
                   </div>
                   <div className="min-w-0">
                     <h3 className="font-bold text-base sm:text-lg">Manage Events</h3>
-                    <p className="text-xs sm:text-sm text-pink-100">View and manage all your events</p>
+                    <p className="text-xs sm:text-sm text-orange-100">View and manage all your events</p>
                   </div>
                 </div>
               </button>
